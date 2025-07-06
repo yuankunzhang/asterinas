@@ -87,6 +87,10 @@ impl DevPts {
 }
 
 impl FileSystem for DevPts {
+    fn type_(&self) -> &'static str {
+        "devpts"
+    }
+
     fn sync(&self) -> Result<()> {
         Ok(())
     }

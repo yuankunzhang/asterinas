@@ -35,6 +35,10 @@ impl SysFs {
 }
 
 impl FileSystem for SysFs {
+    fn type_(&self) -> &'static str {
+        "sysfs"
+    }
+
     fn sync(&self) -> Result<()> {
         // Sysfs is volatile, sync is a no-op
         Ok(())

@@ -44,6 +44,8 @@ bitflags! {
 }
 
 pub trait FileSystem: Any + Sync + Send {
+    fn type_(&self) -> &'static str;
+
     fn sync(&self) -> Result<()>;
 
     fn root_inode(&self) -> Arc<dyn Inode>;

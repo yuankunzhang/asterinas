@@ -402,6 +402,10 @@ impl PageCacheBackend for ExfatFS {
 }
 
 impl FileSystem for ExfatFS {
+    fn type_(&self) -> &'static str {
+        "exfat"
+    }
+
     fn sync(&self) -> Result<()> {
         for inode in self.inodes.read().values() {
             inode.sync_all()?;
