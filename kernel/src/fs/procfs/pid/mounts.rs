@@ -1,8 +1,12 @@
 // SPDX-License-Identifier: MPL-2.0
 
+use alloc::format;
+
 use crate::{
     fs::{
+        path::Dentry,
         procfs::template::{FileOps, ProcFileBuilder},
+        rootfs::root_mount,
         utils::Inode,
     },
     prelude::*,
@@ -10,32 +14,30 @@ use crate::{
 };
 
 /// Represents the inode at `/proc/[pid]/mounts`.
-pub struct MountsFileOps(Arc<Process>);
+pub struct MountsFileOps;
 
 impl MountsFileOps {
-    pub fn new_inode(process_ref: Arc<Process>, parent: Weak<dyn Inode>) -> Arc<dyn Inode> {
-        ProcFileBuilder::new(Self(process_ref))
-            .parent(parent)
-            .build()
-            .unwrap()
+    pub fn new_inode(_process_ref: Arc<Process>, parent: Weak<dyn Inode>) -> Arc<dyn Inode> {
+        ProcFileBuilder::new(Self).parent(parent).build().unwrap()
     }
 }
 
 impl FileOps for MountsFileOps {
     fn data(&self) -> Result<Vec<u8>> {
-        Ok("dummy".to_string().into_bytes())
-        // let cmdline_output = if self.0.status().is_zombie() {
-        //     // Returns 0 characters for zombie process.
-        //     Vec::new()
-        // } else {
-        //     let Ok(argv_cstrs) = self.0.vm().init_stack_reader().argv() else {
-        //         return Ok(Vec::new());
-        //     };
-        //     argv_cstrs
-        //         .into_iter()
-        //         .flat_map(|c_str| c_str.into_bytes_with_nul().into_iter())
-        //         .collect()
-        // };
-        // Ok(cmdline_output)
+        let mounts = root_mount()
+            .iter()
+            .map(|mount| {
+                let fs_type = mount.fs().type_();
+
+                let dentry_ = mount
+                    .mountpoint_dentry()
+                    .unwrap_or(mount.root_dentry().clone());
+                let dentry = Dentry::new(mount, dentry_);
+                let path = dentry.abs_path();
+
+                format!("{fs_type} {path} rw 0 0\n")
+            })
+            .collect::<Vec<String>>();
+        Ok(mounts.join("").into_bytes())
     }
 }

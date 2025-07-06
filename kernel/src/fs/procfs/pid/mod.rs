@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MPL-2.0
 
 use self::{
-    cmdline::CmdlineFileOps, comm::CommFileOps, exe::ExeSymOps, fd::FdDirOps, mounts::MountsFileOps,
-    stat::StatFileOps, status::StatusFileOps, task::TaskDirOps,
+    cmdline::CmdlineFileOps, comm::CommFileOps, exe::ExeSymOps, fd::FdDirOps,
+    mounts::MountsFileOps, stat::StatFileOps, status::StatusFileOps, task::TaskDirOps,
 };
 use super::template::{DirOps, ProcDir, ProcDirBuilder};
 use crate::{

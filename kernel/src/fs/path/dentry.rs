@@ -536,7 +536,7 @@ impl Dentry {
         Ok(Self::new(self.mount_node.clone(), new_child_dentry))
     }
 
-    fn new(mount_node: Arc<MountNode>, inner: Arc<Dentry_>) -> Self {
+    pub fn new(mount_node: Arc<MountNode>, inner: Arc<Dentry_>) -> Self {
         Self { mount_node, inner }
     }
 

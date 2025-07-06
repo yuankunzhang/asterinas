@@ -256,6 +256,10 @@ impl MountNode {
     pub fn fs(&self) -> &Arc<dyn FileSystem> {
         &self.fs
     }
+
+    pub fn iter(&self) -> MountNodeIterator {
+        MountNodeIterator::new(self.this())
+    }
 }
 
 impl Debug for MountNode {
@@ -265,5 +269,34 @@ impl Debug for MountNode {
             .field("mountpoint", &self.mountpoint_dentry)
             .field("fs", &self.fs)
             .finish()
+    }
+}
+
+pub struct MountNodeIterator {
+    queue: VecDeque<Arc<MountNode>>,
+}
+
+impl MountNodeIterator {
+    pub fn new(root: Arc<MountNode>) -> Self {
+        let mut queue = VecDeque::new();
+        queue.push_back(root);
+        Self { queue }
+    }
+}
+
+impl Iterator for MountNodeIterator {
+    type Item = Arc<MountNode>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if let Some(current) = self.queue.pop_front() {
+            let item = current.clone();
+            let children = current.children.read();
+            for child in children.values() {
+                self.queue.push_back(child.clone());
+            }
+            Some(item)
+        } else {
+            None
+        }
     }
 }

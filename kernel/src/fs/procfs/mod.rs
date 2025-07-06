@@ -8,6 +8,7 @@ use self::{
     cpuinfo::CpuInfoFileOps,
     loadavg::LoadAvgFileOps,
     meminfo::MemInfoFileOps,
+    mounts::MountsSymOps,
     pid::PidDirOps,
     self_::SelfSymOps,
     sys::SysDirOps,
@@ -31,6 +32,7 @@ mod cpuinfo;
 mod filesystems;
 mod loadavg;
 mod meminfo;
+mod mounts;
 mod pid;
 mod self_;
 mod sys;
@@ -134,6 +136,8 @@ impl DirOps for RootDirOps {
             FileSystemsFileOps::new_inode(this_ptr.clone())
         } else if name == "meminfo" {
             MemInfoFileOps::new_inode(this_ptr.clone())
+        } else if name == "mounts" {
+            MountsSymOps::new_inode(this_ptr.clone())
         } else if name == "loadavg" {
             LoadAvgFileOps::new_inode(this_ptr.clone())
         } else if name == "cpuinfo" {
@@ -164,6 +168,8 @@ impl DirOps for RootDirOps {
         });
         cached_children
             .put_entry_if_not_found("meminfo", || MemInfoFileOps::new_inode(this_ptr.clone()));
+        cached_children
+            .put_entry_if_not_found("mounts", || MountsSymOps::new_inode(this_ptr.clone()));
         cached_children
             .put_entry_if_not_found("loadavg", || LoadAvgFileOps::new_inode(this_ptr.clone()));
         cached_children
